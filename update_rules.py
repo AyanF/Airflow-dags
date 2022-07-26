@@ -6,7 +6,7 @@ from airflow.operators.trigger_dagrun import TriggerDagRunOperator
 
 # Read JSON file and push task params
 def read_json():
-    with open('data/rules2.json', 'r') as openfile:
+    with open('rules2.json', 'r') as openfile:
         json_object = json.load(openfile)
         
         for x in json_object:
@@ -26,7 +26,7 @@ def update_service(**context):
     ti = context['ti']
     user_ruleId = context["dag_run"].conf.get("ruleId")
     
-    with open('data/rules2.json', 'r') as openfile:
+    with open('rules2.json', 'r') as openfile:
         json_object = json.load(openfile)
         
         for x in json_object:

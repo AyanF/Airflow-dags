@@ -6,7 +6,7 @@ from airflow.providers.http.operators.http import SimpleHttpOperator
 
 # Read JSON file in loop and push task params
 def read_json(ti) -> None:
-    with open('data/rules2.json', 'r') as openfile:
+    with open('rules2.json', 'r') as openfile:
         json_object = json.load(openfile)
         for x in json_object:
             
