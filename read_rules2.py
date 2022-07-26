@@ -31,5 +31,5 @@ with DAG(
     )
 
     
-
+#Tas kdependency to read rules first then trigger second DAG  
 task_read_rules>>task_schedule_service

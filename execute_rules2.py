@@ -56,5 +56,5 @@ with DAG(
         task_id='read_rules',
         python_callable=read_json
     )
-
+#Task dependency to ensure reading rules before executing any rules
 task_read_rules>>task_schedule_service
