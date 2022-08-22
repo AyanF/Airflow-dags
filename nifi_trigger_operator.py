@@ -60,7 +60,7 @@ def startup():
     )
     access_payload = {
         "username": "admin",
-        "password": "nifiadmin@786",
+        "password": "",
     }  
 
     token = get_token(url_nifi_api, access_payload)
