@@ -49,7 +49,7 @@ with DAG(
                                "threshold":"{{task_instance.xcom_pull(task_ids='read_rules3',key='threshold')}}",
                                "searchPreferenceId":"{{task_instance.xcom_pull(task_ids='read_rules3',key='searchPreferenceId')}}",
                                "JOB_NAME":"{{task_instance.xcom_pull(task_ids='read_rules3',key='jobName')}}"}}),
-        headers={"Content-Type": "application/json","Authorization":"Basic YWRtaW46c3VwZXJnYUA3ODY="},
+        headers={"Content-Type": "application/json","Authorization":"Basic"},
         log_response=True,
         extra_options={"verify":False}
     )
