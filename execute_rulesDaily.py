@@ -5,11 +5,10 @@ from airflow.operators.python import PythonOperator
 from airflow.providers.http.operators.http import SimpleHttpOperator
 
 # Read JSON file in loop and push task params
-def read_json(ti) -> None:
-    with open('rules2.json', 'r') as openfile:
+def read_rules(ti) -> None:
+    with open('data/case2.1/rulesDaily.json', 'r') as openfile:
         json_object = json.load(openfile)
         for x in json_object:
-            
             ruleStatus = json_object.get(x).get("ruleStatus")
             if(ruleStatus=="Pending"):
                 facilityId = json_object.get(x).get("facilityId")
@@ -32,7 +31,7 @@ def read_json(ti) -> None:
         ti.xcom_push(key="threshold",value=threshold)
 
 with DAG(
-        dag_id='execute_rules2',
+        dag_id='execute_rulesDaily',
         schedule_interval=None,
         start_date=datetime(2022, 7, 22),
         catchup=False
@@ -47,14 +46,14 @@ with DAG(
                                "JOB_NAME":"{{task_instance.xcom_pull(task_ids='read_rules',key='jobName')}}","SERVICE_NAME":"ftpExportProductThresholdCsv","SERVICE_COUNT":"0","SERVICE_TIME":"{{task_instance.xcom_pull(task_ids='read_rules',key='service_time')}}",
                                "jobFields":{"productStoreId":"{{task_instance.xcom_pull(task_ids='read_rules',key='productStoreId')}}","systemJobEnumId":"{{task_instance.xcom_pull(task_ids='read_rules',key='systemJobEnumId')}}","maxRecurrenceCount":"-1",
                                "recurrenceTimeZone":"Asia/Kolkata"},"statusId":"SERVICE_PENDING","systemJobEnumId":"{{task_instance.xcom_pull(task_ids='read_rules',key='systemJobEnumId')}}"}),
-        headers={"Content-Type": "application/json","Authorization":"Basic XXXXXXXXXXXXX"},
+        headers={"Content-Type": "application/json","Authorization":"Basic xxxxxxxxxx=="},
         log_response=True
     )
     
     # Task to read JSON
     task_read_rules = PythonOperator(
         task_id='read_rules',
-        python_callable=read_json
+        python_callable=read_rules
     )
-#Task dependency to ensure reading rules before executing any rules
+
 task_read_rules>>task_schedule_service

@@ -7,11 +7,11 @@ from airflow.operators.trigger_dagrun import TriggerDagRunOperator
 def get_rules(**context):
     ti = context['ti']
     payload = context["dag_run"].conf
-    with open('rules2.json', 'w') as f:
+    with open('data/case2.1/rulesOnce.json', 'w') as f:
         json.dump(payload,f)
         
 with DAG(
-        dag_id='get_rules2',
+        dag_id='get_rules3',
         schedule_interval=None,
         start_date=datetime(2022, 7, 22),
         catchup=False
@@ -19,7 +19,7 @@ with DAG(
 
     # get rules
     task_read_rules = PythonOperator(
-        task_id='read_rules',
+        task_id='read_rules3',
         python_callable=get_rules,
         provide_context=True
     )
@@ -27,9 +27,9 @@ with DAG(
     # Tridder 2nd DAG
     task_schedule_service = TriggerDagRunOperator(
         task_id="trigger_Dag2",
-        trigger_dag_id="execute_rules2"
+        trigger_dag_id="execute_rules3"
     )
 
     
-#Tas kdependency to read rules first then trigger second DAG  
+
 task_read_rules>>task_schedule_service
