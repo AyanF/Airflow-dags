@@ -1,21 +1,23 @@
-import json
 from datetime import datetime
 from airflow.models import DAG
-from airflow.operators.python import PythonOperator
+from airflow.operators.python import ShortCircuitOperator
 from airflow.operators.trigger_dagrun import TriggerDagRunOperator
 
 def update_service(**context):
+    import json
     ti = context['ti']
-    # user_ruleId = context["dag_run"].conf.get("ruleId")
     
-    with open('dags/rulesOnce.json', 'r') as openfile:
+    with open('dags/rulesDaily.json', 'r') as openfile:
         json_object = json.load(openfile)
         
         for x in json_object:
             ruleStatus_old = json_object.get(x).get("ruleStatus")
             if(ruleStatus_old=="Triggered"):
                 json_object[x]["ruleStatus"]="Completed"
-        with open('dags/rulesOnce.json', 'w') as f:
+                return True
+            else:
+                return False
+        with open('dags/rulesDaily.json', 'w') as f:
             json.dump(json_object,f)
                 
 with DAG(
@@ -26,16 +28,16 @@ with DAG(
 ) as dag:
 
     # Update
-    task_update_rules = PythonOperator(
+    task_update_rules = ShortCircuitOperator(
         task_id='update_rules',
         python_callable=update_service,
         provide_context=True
     )
 
     # Tridder 2nd DAG
-    task_schedule_service = TriggerDagRunOperator(
-        task_id="trigger_execute",
+    task_trigger_execute = TriggerDagRunOperator(
+        task_id="trigger_execute_rules",
         trigger_dag_id="execute_rules"
     )
 
-task_update_rules>>task_schedule_service
+task_update_rules>>task_trigger_execute

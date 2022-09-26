@@ -2,6 +2,7 @@ import json
 from datetime import datetime
 from airflow.models import DAG
 from airflow.operators.python import PythonOperator
+from airflow.operators.python import ShortCircuitOperator
 from airflow.providers.http.operators.http import SimpleHttpOperator
 
 # Read JSON file in loop and push task params
@@ -29,11 +30,11 @@ def read_json(ti) -> None:
                 json_object[x]["ruleStatus"]="Triggered"
                 with open('dags/rulesDaily.json', 'w') as f:
                     json.dump(json_object,f)
-                print("----------------------------")
-                print(json_object.get(x).get("ruleStatus"))    
                 break
+                return True
             else:
                 print("Task over")
+                return False
 
 with DAG(
         dag_id='execute_rules',
@@ -47,17 +48,17 @@ with DAG(
         task_id='schedule_service',
         http_conn_id='sm-uat',
         endpoint='executeServiceFromAirflow',
-             data= json.dumps({"dagId":"update_rules2","serviceName":"ftpExportProductThresholdCsv","payload":{"facilityId":["{{task_instance.xcom_pull(task_ids='read_rules',key='facilityId')}}"],
+             data= json.dumps({"dagId":"update_rules","serviceName":"ftpExportProductThresholdCsv","payload":{"facilityId":["{{task_instance.xcom_pull(task_ids='read_rules',key='facilityId')}}"],
                                "threshold":"{{task_instance.xcom_pull(task_ids='read_rules',key='threshold')}}",
                                "searchPreferenceId":"{{task_instance.xcom_pull(task_ids='read_rules',key='searchPreferenceId')}}",
                                "JOB_NAME":"{{task_instance.xcom_pull(task_ids='read_rules',key='jobName')}}"}}),
-        headers={"Content-Type": "application/json","Authorization":"Basic xxxxxxxxxxxxxxxxx="},
+        headers={"Content-Type": "application/json","Authorization":"Basic xxxxxxxxxxxxxxx="},
         log_response=True,
         extra_options={"verify":False}
     )
     
     # Task to read JSON
-    task_read_rules = PythonOperator(
+    task_read_rules = ShortCircuitOperator(
         task_id='read_rules',
         python_callable=read_json
     )
