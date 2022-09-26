@@ -6,7 +6,7 @@ from airflow.operators.trigger_dagrun import TriggerDagRunOperator
 
 # Read JSON file and push task params
 def read_json():
-    with open('data/rules2.json', 'r') as openfile:
+    with open('rules2.json', 'r') as openfile:
         json_object = json.load(openfile)
         
         for x in json_object:
@@ -26,7 +26,7 @@ def update_service(**context):
     ti = context['ti']
     user_ruleId = context["dag_run"].conf.get("ruleId")
     
-    with open('data/rules2.json', 'r') as openfile:
+    with open('rules2.json', 'r') as openfile:
         json_object = json.load(openfile)
         
         for x in json_object:
@@ -36,33 +36,11 @@ def update_service(**context):
             if(ruleId==user_ruleId):
                 json_object[x]["ruleStatus"]="Completed"
             ruleStatus_new = json_object.get(x).get("ruleStatus")
-            print("================================")
             print(ruleStatus_old)
             print("-------------------------------")
             print(ruleStatus_new)
-            print("=================================")
-        with open('data/rules2.json', 'w') as f:
+        with open('rules2.json', 'w') as f:
             json.dump(json_object,f)
-                
-        # Logic to read the json and find not executed task
-        # facilityId = json_object.get("facilityId")
-        # systemJobEnumId =json_object.get("systemJobEnumId")
-        # productStoreId = json_object.get("productStoreId")
-        # searchPreferenceId = json_object.get("searchPreferenceId")
-        # service_time = json_object.get("SERVICE_TIME")
-        # threshold = json_object.get("threshold")
-        
-        # Push individual values to xcom
-        # ti.xcom_push(key="service_time",value=service_time)
-        # ti.xcom_push(key="facilityId",value=facilityId)
-        # ti.xcom_push(key="systemJobEnumId",value=systemJobEnumId)
-        # ti.xcom_push(key="productStoreId",value=productStoreId)
-        # ti.xcom_push(key="searchPreferenceId",value=searchPreferenceId)
-        # ti.xcom_push(key="threshold",value=threshold)
-
-
-    # Push the not executed task to XCOM as one dictionary
-        # ti.xcom_push(key="rule_to_exec",value=rule_exec)
         
 
 with DAG(
@@ -85,4 +63,5 @@ with DAG(
         trigger_dag_id="execute_rules2"
     )
 
+#Dependency to first update status then trigger second DAG
 task_update_rules>>task_schedule_service

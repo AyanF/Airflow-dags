@@ -6,7 +6,7 @@ from airflow.providers.http.operators.http import SimpleHttpOperator
 
 # Read JSON file in loop and push task params
 def read_json(ti) -> None:
-    with open('data/rules2.json', 'r') as openfile:
+    with open('rules2.json', 'r') as openfile:
         json_object = json.load(openfile)
         for x in json_object:
             
@@ -47,7 +47,7 @@ with DAG(
                                "JOB_NAME":"{{task_instance.xcom_pull(task_ids='read_rules',key='jobName')}}","SERVICE_NAME":"ftpExportProductThresholdCsv","SERVICE_COUNT":"0","SERVICE_TIME":"{{task_instance.xcom_pull(task_ids='read_rules',key='service_time')}}",
                                "jobFields":{"productStoreId":"{{task_instance.xcom_pull(task_ids='read_rules',key='productStoreId')}}","systemJobEnumId":"{{task_instance.xcom_pull(task_ids='read_rules',key='systemJobEnumId')}}","maxRecurrenceCount":"-1",
                                "recurrenceTimeZone":"Asia/Kolkata"},"statusId":"SERVICE_PENDING","systemJobEnumId":"{{task_instance.xcom_pull(task_ids='read_rules',key='systemJobEnumId')}}"}),
-        headers={"Content-Type": "application/json","Authorization":"Basic aG90d2F4LnVzZXI6aG90d2F4QDc4Ng=="},
+        headers={"Content-Type": "application/json","Authorization":"Basic XXXXXXXXXXXXX"},
         log_response=True
     )
     
@@ -56,5 +56,5 @@ with DAG(
         task_id='read_rules',
         python_callable=read_json
     )
-
+#Task dependency to ensure reading rules before executing any rules
 task_read_rules>>task_schedule_service

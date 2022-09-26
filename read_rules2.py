@@ -7,7 +7,7 @@ from airflow.operators.trigger_dagrun import TriggerDagRunOperator
 def get_rules(**context):
     ti = context['ti']
     payload = context["dag_run"].conf
-    with open('data/rules2.json', 'w') as f:
+    with open('rules2.json', 'w') as f:
         json.dump(payload,f)
         
 with DAG(
@@ -31,5 +31,5 @@ with DAG(
     )
 
     
-
+#Tas kdependency to read rules first then trigger second DAG  
 task_read_rules>>task_schedule_service
