@@ -6,7 +6,7 @@ from airflow.operators.trigger_dagrun import TriggerDagRunOperator
 def update_service(**context):
     import json
     ti = context['ti']
-    
+
     with open('dags/rulesDaily.json', 'r') as openfile:
         json_object = json.load(openfile)
         
