@@ -23,3 +23,5 @@ with DAG(
         trigger_rule=TriggerRule.ALL_DONE,
     )
 
+    failing_task >> passing_task >> teardown
+    list(dag.tasks) >> watcher()
