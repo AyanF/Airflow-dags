@@ -1,0 +1,55 @@
+from datetime import datetime
+
+from airflow.models import Variable
+from airflow import DAG
+from airflow.decorators import task
+from airflow.exceptions import AirflowException
+from airflow.operators.bash import BashOperator
+from airflow.utils.trigger_rule import TriggerRule
+
+
+@task(trigger_rule=TriggerRule.ONE_FAILED, retries=0)
+def watcher():
+    raise AirflowException("Failing task because one or more upstream tasks failed.")
+
+
+with DAG(
+    dag_id="dynamic_test",
+    schedule_interval=None,
+    start_date=datetime(2021, 1, 1),
+    catchup=False,
+) as dag:
+    task_1=Variable.get("task_1", default_var="true")
+    task_2=Variable.get("task_2", default_var="true")
+    task_3=Variable.get("task_3", default_var="true")
+    task_4=Variable.get("task_4", default_var="true")
+    task_5=Variable.get("task_5", default_var="false")
+    list_of_tasks=[];
+    
+    if(task_1=="true"):
+        task_1= BashOperator(task_id="task_1", bash_command="echo task_1")
+        list_of_tasks.append(task_1)
+        
+    if(task_2=="true"):
+        task_2 = BashOperator(task_id="task_2", bash_command="echo task_2")
+        list_of_tasks.append(task_2)
+        
+    if(task_3=="true"):
+        task_3 = BashOperator(task_id="task_3", bash_command="echo task_3")
+        list_of_tasks.append(task_3)
+        
+    if(task_4=="true"):
+        task_4 = BashOperator(task_id="task_4", bash_command="echo task_4")
+        list_of_tasks.append(task_4)
+        
+    if(task_5=="true"):
+        task_5 = BashOperator(task_id="task_5", bash_command="echo task_5")
+        list_of_tasks.append(task_5)
+        
+    
+    length=len(list_of_tasks)
+    for i in range(length):
+        if i not in [0]: 
+            list_of_tasks[i-1] >> list_of_tasks[i]
+    
+
