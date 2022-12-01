@@ -6,7 +6,7 @@ from airflow.providers.http.operators.http import SimpleHttpOperator
 
 def get_filename(**context):
     ti = context['ti']
-    filename = context["dag_run"].conf.get("input").get("filename")
+    filename = context["dag_run"].conf.get("filename")
     print("-----------------------------")
     print(filename)
     ti.xcom_push(key="file_name",value=filename)
@@ -34,9 +34,9 @@ with DAG(
         task_id='schedule_service',
         http_conn_id='local_ofbiz',
         endpoint='/api/service/executeServiceFromAirflow',
-             data= json.dumps({"dagId":"Ofbiz_to_NiFi","airload":"{{task_instance.xcom_pull(task_ids='task_get_filename',key='file_name')}}","serviceName":"ftpExportProductThresholdCsv","payload":{"facilityId":[
+             data= json.dumps({"dagId":"Ofbiz_to_NiFi","airflowPayload":{"filename":"{{task_instance.xcom_pull(task_ids='task_get_filename',key='file_name')}}"},"serviceName":"ftpExportProductThresholdCsv","payload":{"facilityId":[
             "WH"],"threshold":"1","searchPreferenceId":"10002","JOB_NAME":"AirflowRule5"}}),
-        headers={"Content-Type": "application/json","Authorization":"Basic =="},
+        headers={"Content-Type": "application/json","Authorization":"Basic aG90d2F4LnVzZXI6aG90d2F4QDc4Ng=="},
         log_response=True,
         extra_options={"verify":False}
     )

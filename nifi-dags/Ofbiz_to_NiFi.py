@@ -6,7 +6,7 @@ from airflow.providers.http.operators.http import SimpleHttpOperator
 
 def get_filename(**context):
     ti = context['ti']
-    filename = context["dag_run"].conf.get("airload")
+    filename = context["dag_run"].conf.get("filename")
     print("------------")
     print(filename)
     print("------------")
@@ -26,7 +26,7 @@ with DAG(
         task_id='send_filename',
         http_conn_id='local_NiFi',
         endpoint='receive_filename',
-             data= json.dumps({"filename":"{{task_instance.xcom_pull(task_ids='task_get_filename',key='file_name')}}"}),
+        data= json.dumps({"filename":"{{task_instance.xcom_pull(task_ids='task_get_filename',key='file_name')}}"}),
         log_response=True
     )
     
